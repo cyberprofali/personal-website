@@ -1,0 +1,83 @@
+<button
+  id="theme-toggle"
+  class="theme-toggle"
+  type="button"
+  aria-label="Switch color theme"
+  title="Switch color theme"
+>
+  {/* Both icons are always in the DOM; CSS shows one based on <html data-theme>,
+      so the button paints correctly even before this component's script runs. */}
+  {/* Sun — shown in dark mode (click for light). */}
+  <svg
+    class="icon-sun"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+  </svg>
+
+  {/* Moon — shown when the light theme is active (click for dark). */}
+  <svg
+    class="icon-moon"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<script>
+  type ThemeApi = {
+    get: () => 'light' | 'dark';
+    set: (theme: 'light' | 'dark') => void;
+    clear: () => void;
+  };
+
+  const button = document.getElementById('theme-toggle');
+  const api = (window as unknown as { __theme?: ThemeApi }).__theme;
+
+  if (button && api) {
+    const syncLabel = () => {
+      const next = api.get() === 'dark' ? 'light' : 'dark';
+      button.setAttribute('aria-label', `Switch to ${next} theme`);
+      button.setAttribute('title', `Switch to ${next} theme`);
+    };
+
+    syncLabel();
+
+    button.addEventListener('click', () => {
+      api.set(api.get() === 'dark' ? 'light' : 'dark');
+      syncLabel();
+    });
+
+    // Reflect OS-driven changes in the label while no explicit choice is set.
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', syncLabel);
+    }
+
+    // Keep multiple open tabs in sync.
+    window.addEventListener('storage', (event) => {
+      if (event.key !== 'theme') return;
+      if (event.newValue === 'light' || event.newValue === 'dark') {
+        api.set(event.newValue);
+      } else {
+        api.clear();
+      }
+      syncLabel();
+    });
+  }
+</script>
