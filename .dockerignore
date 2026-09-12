@@ -1,0 +1,27 @@
+# Dependencies and builds.
+/node_modules
+/dist
+/.astro
+/.pnpm-store
+
+# Local-only.
+/scripts
+/.shots
+
+# Version control and editor/OS files.
+/.git
+/.gitignore
+/.vscode
+/.idea
+.DS_Store
+Thumbs.db
+
+# Local environment files.
+/.env
+/.env.production
+
+# Not needed in the container.
+/README.md
+/Dockerfile
+/Dockerfile.probe
+/.dockerignore
